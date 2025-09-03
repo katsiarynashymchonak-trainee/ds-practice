@@ -68,9 +68,11 @@ def aggregate_data(df):
 
 def load_train():
     print("Loading train...")
-    train = pd.read_csv("data/sales_train.csv")
+    train = pd.read_csv("../data/sales_train.csv")
     # Парсинг дат
     train['date'] = pd.to_datetime(train['date'], errors='coerce', format='%d.%m.%Y')
+
+    train["day"] = train["day"].apply(lambda x: x.day)
     train["month"] = train["date"].apply(lambda x: x.month)
     train["year"] = train["date"].apply(lambda x: x.year)
 
@@ -82,14 +84,14 @@ def load_train():
 
 def load_test(next_month_num):
     print("Loading test...")
-    test = pd.read_csv("data/test.csv")
+    test = pd.read_csv("../data/test.csv")
     test['date_block_num'] = next_month_num  # 34 номер ноября 2015 года
     return test
 
 
 def load_items():
     print("Loading items...")
-    items = pd.read_csv("data/items.csv")
+    items = pd.read_csv("../data/items.csv")
     return items
 
 
@@ -303,7 +305,7 @@ def main():
 
     print(f'best model: {type(best_pipe.named_steps["regressor"]).__name__}, rmse: {best_score:.4f}')
     best_pipe.fit(x, y)
-    with open('event_pipe.pkl', 'wb') as file:
+    with open('sales_pipe.pkl', 'wb') as file:
         dill.dump({
             "model": best_pipe,
             "metadata": {
