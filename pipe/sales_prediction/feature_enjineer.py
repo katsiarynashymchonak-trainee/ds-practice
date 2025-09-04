@@ -1,5 +1,4 @@
 # feature_engineer.py
-
 import logging
 from itertools import product
 
@@ -15,36 +14,35 @@ class FeatureEngineer:
     def create_full_train(data: pd.DataFrame) -> pd.DataFrame:
         logger.info("Generating full grid of shop_id × item_id × date_block_num...")
 
-        # Группировка по date_block_num и получение уникальных shop_id и item_id
+        # Create full matrix of all combinations for each month
         grids = [
             np.array(list(product([block], shops, items)), dtype='int32')
             for block, group in data.groupby('date_block_num')
             for shops in [group['shop_id'].unique()]
             for items in [group['item_id'].unique()]
         ]
-
-        # Объединение всех блоков в единую матрицу
         grid_df = pd.DataFrame(
             np.vstack(grids),
             columns=['date_block_num', 'shop_id', 'item_id']
         )
 
-        # Объединение с исходными данными
+        # Merge with original data to fill in missing combinations
         merged = pd.merge(grid_df, data, on=['date_block_num', 'shop_id', 'item_id'], how='left')
 
-        # Заполнение пропусков и ограничение значений
+        # Fill missing sales with 0 and clip extreme values
         merged['item_cnt_month'] = (
             merged['item_cnt_month']
             .fillna(0)
-            .clip(0, 500)
+            .clip(0, 600)
             .astype(np.int32)
         )
-
         return merged
 
     @staticmethod
-    def concat_data(train, test):
+    def concat_train_test(train, test):
         logger.info("Concatenating train and test...")
+
+        # Combine train and test datasets for feature generation
         cols_to_concat = ['date_block_num', 'shop_id', 'item_id']
         target_col = ['item_cnt_month']
 
@@ -52,6 +50,7 @@ class FeatureEngineer:
                         test[cols_to_concat]],
                        ignore_index=True,
                        sort=False)
+
         return df
 
     @staticmethod
@@ -59,31 +58,28 @@ class FeatureEngineer:
         logger.info("Adding features to dataset...")
         df = data.copy()
 
-        # Добавление категории товара
+        # Merge item categories
         df = pd.merge(df, items[['item_id', 'item_category_id']], on='item_id', how='left')
 
-        # Сортировка
+        # Sort for consistent lag calculation
         df.sort_values(['date_block_num', 'shop_id', 'item_id'], inplace=True)
 
-        # Создание лагов
+        # Add lag features for previous months
         for lag in [1, 2, 3, 6, 12]:
             df[f'lag_{lag}_month'] = df.groupby(['shop_id', 'item_id'])['item_cnt_month'].shift(lag).fillna(0)
 
-        # Добавление месяца и года
+        # Extract year and month from date_block_num
         df['year'] = (df['date_block_num'] // 12) + 2013
         df['month'] = (df['date_block_num'] % 12) + 1
 
-        # Сортировка по item_id и времени
-        df.sort_values(by=['item_id', 'date_block_num'], inplace=True)
-
-        # Средние продажи товара в предыдущем месяце
+        # Average item sales in previous month
         df['avg_item_cnt_prev_month'] = (
             df.groupby('item_id')['item_cnt_month']
             .shift(1)
             .fillna(0)
         )
 
-        # Средние продажи магазина в предыдущем месяце
+        # Average shop sales in previous month
         df['avg_shop_cnt_prev_month'] = (
             df.groupby('shop_id')['item_cnt_month']
             .shift(1)
@@ -93,16 +89,15 @@ class FeatureEngineer:
         for num in sorted(df["date_block_num"].unique()):
             filtered_data = df[df["date_block_num"] <= num]
 
-            # Month of item's first sale
+            # First month when item was sold
             df.loc[df["date_block_num"] == num, 'item_first_month'] = filtered_data.groupby('item_id')[
                 'date_block_num'].transform('min')
-            # Month of first sale in shop
+            # First month when shop made a sale
             df.loc[df["date_block_num"] == num, 'shop_first_month'] = filtered_data.groupby('shop_id')[
                 'date_block_num'].transform('min')
 
-        # Возраст товара
+        # Calculate item and shop age in months
         df['item_age_months'] = df['date_block_num'] - df['item_first_month']
-        # Возраст магазина
         df['shop_age_months'] = df['date_block_num'] - df['shop_first_month']
 
         return df
@@ -112,13 +107,15 @@ class FeatureEngineer:
         logger.info("Splitting data into train and test sets...")
         df = data.copy()
 
+        # Separate final test and train sets
         final_test_features = df[df['date_block_num'] == 34].copy()
         final_train_features = df[df['date_block_num'] <= 33].copy()
 
-        # Исключаем ранние записи
+        # Remove early months to avoid cold-start bias
         min_train_month = 12
         final_train_features = final_train_features[final_train_features['date_block_num'] >= min_train_month].copy()
 
+        # Select feature columns
         feature_cols = [
             'lag_1_month', 'lag_2_month', 'lag_3_month', 'lag_6_month', 'lag_12_month',
             'avg_item_cnt_prev_month', 'avg_shop_cnt_prev_month', 'month', 'year',
@@ -126,9 +123,9 @@ class FeatureEngineer:
             'item_category_id'
         ]
 
-        # Train/Validation
-        x_train = final_train_features[feature_cols]
-        y_train = final_train_features['item_cnt_month']
+        # Split into X and y for training, and X_test for prediction
+        x = final_train_features[feature_cols]
+        y = final_train_features['item_cnt_month']
         x_test = final_test_features[feature_cols]
 
-        return x_train, y_train, x_test
+        return x, y, x_test

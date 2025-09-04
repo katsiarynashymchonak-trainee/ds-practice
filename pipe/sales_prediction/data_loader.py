@@ -27,6 +27,8 @@ class DataLoader:
         train["year"] = train["date"].dt.year
         train.drop(columns=["date"], inplace=True)
 
+        # Valid price
+        train = train[train["item_price"] >= 0]
         return train
 
     def load_test(self, next_month_num):

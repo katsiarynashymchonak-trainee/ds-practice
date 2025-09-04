@@ -39,6 +39,7 @@ LGB_PARAMS = {
     'lambda_l2': 0.1,
     'num_leaves': 31,
     'n_jobs': -1,
+    'verbose': -1
 }
 
 # Random forest params
