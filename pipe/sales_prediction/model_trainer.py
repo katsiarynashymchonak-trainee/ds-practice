@@ -1,28 +1,26 @@
-# Handles logging setup
 import logging
 
 import dill
 import numpy as np
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import FunctionTransformer
 
-# Custom time series validator
-from validator import TimeSeriesValidator
+from sales_prediction.standard_scaler_handler import StandardScalerHandler
+from sales_prediction.validator import TimeSeriesValidator
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
 class ModelTrainer:
-    # Initializes with a list of models and optional metadata
     def __init__(self, models: tuple, metadata: dict = None):
         self.models = models
         self.metadata = metadata or {}
         self.best_model = None
-        self.best_error = float("inf")  # Note: lower RMSE is better
+        self.best_error = float("inf")
         self.validator = TimeSeriesValidator(n_splits=4)
 
-    # Trains and evaluates models using time series cross-validation
     def train(self, x, y, x_test):
         logger.info("Starting model training with custom time series validation...")
 
@@ -30,10 +28,10 @@ class ModelTrainer:
             model_name = type(model).__name__
             logger.info(f"Evaluating model: {model_name}")
 
-            # Build pipeline with imputation if missing values are present
-            if np.any(x.isnull()) or np.any(x_test.isnull()):
+            if np.any(x.isnull()):
                 pipe = Pipeline([
                     ('imputer', SimpleImputer(strategy='mean')),
+                    ("scale", FunctionTransformer(StandardScalerHandler.scale_train)),
                     ('regressor', model)
                 ])
             else:
@@ -41,14 +39,12 @@ class ModelTrainer:
                     ('regressor', model)
                 ])
 
-            # Validate model and compute error metrics
             errors = self.validator.validate(pipe, x, y)
             mean_error = errors.mean()
             std_error = errors.std()
 
             logger.info(f"RMSE for {model_name}: {mean_error:.4f} ± {std_error:.4f}")
 
-            # Update best model
             if mean_error < self.best_error:
                 self.best_error = mean_error
                 self.best_model = pipe
@@ -60,7 +56,27 @@ class ModelTrainer:
         logger.info(f"Best model selected: {self.metadata['type']} with RMSE: {self.metadata['rmse']:.4f}")
         self.best_model.fit(x, y)
 
-    # Saves the trained model and metadata
+    def predict(self, x_test):
+        logger.info("🔮 Начинаем предсказание на тестовых данных...")
+
+        # Предобработка теста: импьютер + скейлер
+        if np.any(x_test.isnull()):
+            logger.info("🧼 Обнаружены пропущенные значения — применяем импьютацию и масштабирование.")
+            preprocess_pipe = Pipeline([
+                ('imputer', SimpleImputer(strategy='mean')),
+                ('scale', FunctionTransformer(StandardScalerHandler.scale_test))
+            ])
+            x_test_processed = preprocess_pipe.fit_transform(x_test)
+        else:
+            x_test_processed = StandardScalerHandler.scale_test(x_test)
+
+        # Предсказание
+        predictions = self.best_model.predict(x_test_processed)
+
+        # Вывод первых 5
+        logger.info(f"Первые 5 предсказаний: {predictions[:5]}")
+        return predictions
+
     def save(self, path: str = "event_pipe.pkl"):
         logger.info(f"Saving trained model to {path}...")
         with open(path, 'wb') as file:

@@ -57,15 +57,3 @@ class DataPreprocessor:
         logger.info(f"Memory usage became {memory_before_reduction / memory_after_reduction} times smaller")
 
         return data
-
-    # Applies standard scaling to numeric features
-    @staticmethod
-    def apply_standard_scaling(df: pd.DataFrame) -> pd.DataFrame:
-        logger.info("Applying standard scaling to all numeric features...")
-        data = df.copy()
-        cols = [col for col in df.columns if col not in ["item_cnt_month", "date_block_num"]]
-
-        scaler = StandardScaler()
-        data[cols] = scaler.fit_transform(data[cols])
-
-        return data

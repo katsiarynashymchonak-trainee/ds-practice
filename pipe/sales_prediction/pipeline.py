@@ -36,8 +36,7 @@ def run_pipeline():
         ("concat_data", FunctionTransformer(FeatureEngineer.concat_train_test, kw_args={"test": test})),
         ("replace_shop_ids", FunctionTransformer(DataPreprocessor.replace_shop_ids)),
         ("add_features", FunctionTransformer(FeatureEngineer.add_features, kw_args={"items": items})),
-        ("cast_types", FunctionTransformer(DataPreprocessor.cast_types)),
-        ("scale", FunctionTransformer(DataPreprocessor.apply_standard_scaling))
+        ("cast_types", FunctionTransformer(DataPreprocessor.cast_types))
     ])
 
     processed = pipeline.fit_transform(train)
@@ -55,6 +54,7 @@ def run_pipeline():
     # Modeling
     trainer = ModelTrainer(models=models, metadata=MODEL_METADATA)
     trainer.train(x, y, x_test)
+    trainer.predict(x_test)
     # Save best model
     trainer.save(MODEL_SAVE_PATH)
 
