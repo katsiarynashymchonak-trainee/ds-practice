@@ -53,7 +53,7 @@ def run_pipeline():
 
     # Modeling
     trainer = ModelTrainer(models=models, metadata=MODEL_METADATA)
-    trainer.train(x, y, x_test)
+    trainer.train(x, y)
     trainer.predict(x_test)
     # Save best model
     trainer.save(MODEL_SAVE_PATH)

@@ -20,8 +20,9 @@ class ModelTrainer:
         self.best_model = None
         self.best_error = float("inf")
         self.validator = TimeSeriesValidator(n_splits=4)
+        self.scaler = StandardScalerHandler()
 
-    def train(self, x, y, x_test):
+    def train(self, x, y):
         logger.info("Starting model training with custom time series validation...")
 
         for model in self.models:
@@ -31,11 +32,12 @@ class ModelTrainer:
             if np.any(x.isnull()):
                 pipe = Pipeline([
                     ('imputer', SimpleImputer(strategy='mean')),
-                    ("scale", FunctionTransformer(StandardScalerHandler.scale_train)),
+                    ("scale", FunctionTransformer(self.scaler.scale_train)),
                     ('regressor', model)
                 ])
             else:
                 pipe = Pipeline([
+                    ("scale", FunctionTransformer(self.scaler.scale_train)),
                     ('regressor', model)
                 ])
 
@@ -57,24 +59,23 @@ class ModelTrainer:
         self.best_model.fit(x, y)
 
     def predict(self, x_test):
-        logger.info("🔮 Начинаем предсказание на тестовых данных...")
+        logger.info("Prediction...")
 
-        # Предобработка теста: импьютер + скейлер
         if np.any(x_test.isnull()):
-            logger.info("🧼 Обнаружены пропущенные значения — применяем импьютацию и масштабирование.")
+            logger.info("Filling NA in test...")
             preprocess_pipe = Pipeline([
                 ('imputer', SimpleImputer(strategy='mean')),
-                ('scale', FunctionTransformer(StandardScalerHandler.scale_test))
+                ('scale', FunctionTransformer(self.scaler.scale_test))
             ])
             x_test_processed = preprocess_pipe.fit_transform(x_test)
         else:
-            x_test_processed = StandardScalerHandler.scale_test(x_test)
+            x_test_processed = self.scaler.scale_test(x_test)
 
-        # Предсказание
+        # Prediction
         predictions = self.best_model.predict(x_test_processed)
 
-        # Вывод первых 5
-        logger.info(f"Первые 5 предсказаний: {predictions[:5]}")
+        # Output results
+        logger.info(f"First 5 results: {predictions[:5]}")
         return predictions
 
     def save(self, path: str = "event_pipe.pkl"):
