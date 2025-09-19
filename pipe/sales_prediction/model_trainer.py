@@ -6,11 +6,13 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
 
+from sales_prediction.data_loader import DataLoader
 from sales_prediction.standard_scaler_handler import StandardScalerHandler
 from sales_prediction.validator import TimeSeriesValidator
-
+from config import PRED_PATH
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
 
 
 class ModelTrainer:
@@ -21,6 +23,8 @@ class ModelTrainer:
         self.best_error = float("inf")
         self.validator = TimeSeriesValidator(n_splits=4)
         self.scaler = StandardScalerHandler()
+        self.loader = DataLoader()
+        self.pred_path = PRED_PATH
 
     def train(self, x, y):
         logger.info("Starting model training with custom time series validation...")
@@ -73,9 +77,14 @@ class ModelTrainer:
 
         # Prediction
         predictions = self.best_model.predict(x_test_processed)
+        # Saving predictions
+        sub_df = self.loader.load_submission_file()
+        sub_df["item_cnt_month"] = predictions
+        sub_df.to_csv(PRED_PATH, index=False)
 
         # Output results
-        logger.info(f"First 5 results: {predictions[:5]}")
+        logger.info(f"First 5 results: {sub_df.head()}")
+
         return predictions
 
     def save(self, path: str = "event_pipe.pkl"):

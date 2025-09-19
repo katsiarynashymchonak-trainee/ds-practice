@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 from config import (
-    TRAIN_PATH, TEST_PATH, ITEMS_PATH
+    TRAIN_PATH, TEST_PATH, ITEMS_PATH, SUB_PATH
 )
 
 class DataLoader:
@@ -15,6 +15,7 @@ class DataLoader:
         self.train_path = TRAIN_PATH
         self.test_path = TEST_PATH
         self.items_path = ITEMS_PATH
+        self.sub_path = SUB_PATH
 
     def load_train(self):
         logger.info("Loading training data...")
@@ -44,3 +45,8 @@ class DataLoader:
         logger.info("Loading item metadata...")
         items = pd.read_csv(self.items_path)
         return items
+
+    def load_submission_file(self):
+        logger.info("Loading submission file...")
+        sub = pd.read_csv(self.sub_path)
+        return sub
