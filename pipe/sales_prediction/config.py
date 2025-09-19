@@ -4,6 +4,8 @@
 TRAIN_PATH = "../data/raw/sales_train.csv"
 TEST_PATH = "../data/raw/test.csv"
 ITEMS_PATH = "../data/raw/items.csv"
+SUB_PATH = "../data/raw/sample_submission.csv"
+PRED_PATH = "../data/processed/sample_submission.csv"
 MODEL_SAVE_PATH = "../models/sales_model.pkl"
 
 # Metadata
