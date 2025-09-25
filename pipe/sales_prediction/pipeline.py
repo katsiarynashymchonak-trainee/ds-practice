@@ -1,21 +1,26 @@
+import logging
 import lightgbm as lgb
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import Ridge
-from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
 from xgboost import XGBRegressor
+from sklearn.pipeline import Pipeline
+
 
 from config import (
-    MODEL_SAVE_PATH, RIDGE_PARAMS, RF_PARAMS,
-    XGB_PARAMS, LGB_PARAMS, MODEL_METADATA
+    MODEL_SAVE_PATH, MODEL_METADATA, OPTUNA_SPACES,
+    X_PATH, X_TEST_PATH, Y_PATH
 )
-from data_loader import DataLoader
-from data_preprocessor import DataPreprocessor
-from feature_enjineer import FeatureEngineer
 from model_trainer import ModelTrainer
-from utills.logger import setup_logger
+from pipe.sales_prediction.data_loader import DataLoader
+from pipe.sales_prediction.data_preprocessor import DataPreprocessor
+from pipe.sales_prediction.feature_enjineer import FeatureEngineer
+from pipe.sales_prediction.feature_selector import FeatureSelector
+from pipe.sales_prediction.standard_scaler_handler import StandardScalerHandler
 
-logger = setup_logger("pipeline")
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 def run_pipeline():
@@ -43,18 +48,25 @@ def run_pipeline():
 
     # Train/test split
     x, y, x_test = FeatureEngineer.split_df(processed)
+    x.to_csv(X_PATH, index=False)
+    y.to_csv(Y_PATH, index=False)
+    x_test.to_csv(X_TEST_PATH, index=False)
 
-    # Models initialization
-    xgb_model = XGBRegressor(**XGB_PARAMS)
-    lgb_model = lgb.LGBMRegressor(**LGB_PARAMS, callbacks=[lgb.early_stopping(stopping_rounds=100)])
-    ridge_model = Ridge(**RIDGE_PARAMS)
-    rf_model = RandomForestRegressor(**RF_PARAMS)
-    models = (xgb_model, lgb_model, ridge_model, rf_model)
+    # x = pd.read_csv(X_PATH)
+    # y = pd.read_csv(Y_PATH)
+    # x_test = pd.read_csv(X_TEST_PATH)
 
     # Modeling
-    trainer = ModelTrainer(models=models, metadata=MODEL_METADATA)
+    trainer = ModelTrainer(
+        models=(XGBRegressor(), lgb.LGBMRegressor(verbose=-1), Ridge(), RandomForestRegressor(verbose=-1)),
+        metadata=MODEL_METADATA,
+        param_spaces=OPTUNA_SPACES
+    )
+
     trainer.train(x, y)
+    trainer.evaluate_best_model(x, y)
     trainer.predict(x_test)
+
     # Save best model
     trainer.save(MODEL_SAVE_PATH)
 

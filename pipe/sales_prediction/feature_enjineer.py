@@ -65,7 +65,7 @@ class FeatureEngineer:
         df.sort_values(['date_block_num', 'shop_id', 'item_id'], inplace=True)
 
         # Add lag features for previous months
-        for lag in [1, 2, 3, 6, 12]:
+        for lag in [1, 2, 3, 6]:
             df[f'lag_{lag}_month'] = df.groupby(['shop_id', 'item_id'])['item_cnt_month'].shift(lag).fillna(0)
 
         # Extract year and month from date_block_num
@@ -112,12 +112,12 @@ class FeatureEngineer:
         final_train_features = df[df['date_block_num'] <= 33].copy()
 
         # Remove early months to avoid cold-start bias
-        min_train_month = 12
+        min_train_month = 3
         final_train_features = final_train_features[final_train_features['date_block_num'] >= min_train_month].copy()
 
         # Select feature columns
         feature_cols = [
-            'lag_1_month', 'lag_2_month', 'lag_3_month', 'lag_6_month', 'lag_12_month',
+            'lag_1_month', 'lag_2_month', 'lag_3_month',
             'avg_item_cnt_prev_month', 'avg_shop_cnt_prev_month', 'month', 'year',
             'item_age_months', 'shop_age_months',
             'item_category_id'
