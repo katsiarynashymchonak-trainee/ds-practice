@@ -1,23 +1,21 @@
 import logging
+
 import lightgbm as lgb
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import Ridge
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
 from xgboost import XGBRegressor
-from sklearn.pipeline import Pipeline
-
 
 from config import (
     MODEL_SAVE_PATH, MODEL_METADATA, OPTUNA_SPACES,
-    X_PATH, X_TEST_PATH, Y_PATH
+    X_PATH, X_TEST_PATH, Y_PATH, FORM_PREP_DATA,
 )
-from model_trainer import ModelTrainer
-from pipe.sales_prediction.data_loader import DataLoader
-from pipe.sales_prediction.data_preprocessor import DataPreprocessor
-from pipe.sales_prediction.feature_enjineer import FeatureEngineer
-from pipe.sales_prediction.feature_selector import FeatureSelector
-from pipe.sales_prediction.standard_scaler_handler import StandardScalerHandler
+from pipe.sales_prediction.data_preparation.data_loader import DataLoader
+from pipe.sales_prediction.data_preparation.data_preprocessor import DataPreprocessor
+from pipe.sales_prediction.feature_enjineering.feature_enjineer import FeatureEngineer
+from pipe.sales_prediction.modeling.model_trainer import ModelTrainer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -25,36 +23,36 @@ logging.basicConfig(level=logging.INFO)
 
 def run_pipeline():
     logger.info("Sales Prediction Pipeline")
+    if FORM_PREP_DATA:
+        # Loading data
+        loader = DataLoader()
+        train, items, categories, shops, test = loader.load_data()
 
-    # DataLoader instance
-    loader = DataLoader()
+        # Building pipeline
+        pipeline = Pipeline([
+            ("aggregate_data", FunctionTransformer(DataPreprocessor.aggregate_data)),
+            ("create_full_train", FunctionTransformer(FeatureEngineer.create_full_train)),
+            ("remove_shops", FunctionTransformer(FeatureEngineer.remove_shops_from_train, kw_args={"test": test})),
+            ("remove_zero_sales", FunctionTransformer(DataPreprocessor.remove_zero_sales)),
+            ("concat_data", FunctionTransformer(FeatureEngineer.concat_train_test, kw_args={"test": test})),
+            ("replace_shop_ids", FunctionTransformer(DataPreprocessor.replace_shop_ids)),
+            ("add_features",
+             FunctionTransformer(FeatureEngineer.add_features,
+                                 kw_args={"items": items, "categories": categories, "shops": shops})),
+            ("cast_types", FunctionTransformer(DataPreprocessor.cast_types))
+        ])
 
-    # Loading data
-    train = loader.load_train()
-    items = loader.load_items()
-    test = loader.load_test(train["date_block_num"].max() + 1)
+        processed = pipeline.fit_transform(train)
 
-    # Building pipeline
-    pipeline = Pipeline([
-        ("aggregate_data", FunctionTransformer(DataPreprocessor.aggregate_data)),
-        ("create_full_train", FunctionTransformer(FeatureEngineer.create_full_train)),
-        ("concat_data", FunctionTransformer(FeatureEngineer.concat_train_test, kw_args={"test": test})),
-        ("replace_shop_ids", FunctionTransformer(DataPreprocessor.replace_shop_ids)),
-        ("add_features", FunctionTransformer(FeatureEngineer.add_features, kw_args={"items": items})),
-        ("cast_types", FunctionTransformer(DataPreprocessor.cast_types))
-    ])
-
-    processed = pipeline.fit_transform(train)
-
-    # Train/test split
-    x, y, x_test = FeatureEngineer.split_df(processed)
-    x.to_csv(X_PATH, index=False)
-    y.to_csv(Y_PATH, index=False)
-    x_test.to_csv(X_TEST_PATH, index=False)
-
-    # x = pd.read_csv(X_PATH)
-    # y = pd.read_csv(Y_PATH)
-    # x_test = pd.read_csv(X_TEST_PATH)
+        # Train/test split
+        x, y, x_test = FeatureEngineer.split_df(processed)
+        x.to_csv(X_PATH, index=False)
+        y.to_csv(Y_PATH, index=False)
+        x_test.to_csv(X_TEST_PATH, index=False)
+    else:
+        x = pd.read_csv(X_PATH)
+        y = pd.read_csv(Y_PATH)
+        x_test = pd.read_csv(X_TEST_PATH)
 
     # Modeling
     trainer = ModelTrainer(
@@ -62,12 +60,11 @@ def run_pipeline():
         metadata=MODEL_METADATA,
         param_spaces=OPTUNA_SPACES
     )
-
     trainer.train(x, y)
     trainer.evaluate_best_model(x, y)
     trainer.predict(x_test)
 
-    # Save best model
+    # Saving best model
     trainer.save(MODEL_SAVE_PATH)
 
     logger.info("Pipeline completed successfully.")

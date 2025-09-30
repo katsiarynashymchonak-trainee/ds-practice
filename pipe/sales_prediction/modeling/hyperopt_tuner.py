@@ -3,8 +3,8 @@ import os
 import warnings
 
 import numpy as np
-import optuna
 import pandas as pd
+from hyperopt import fmin, tpe, Trials, STATUS_OK
 from sklearn.exceptions import DataConversionWarning
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.pipeline import Pipeline
@@ -17,22 +17,23 @@ logging.basicConfig(level=logging.INFO)
 warnings.filterwarnings(action='ignore', category=DataConversionWarning)
 
 
-class OptunaTuner:
+class HyperoptTuner:
     def __init__(self, model_class, param_space, scaler, validator,
-                 n_trials=15, sample_size=500_000):
+                 max_evals=25, sample_size=500_000):
         self.model_class = model_class
-        self.param_space = param_space  # функция, принимающая trial и возвращающая dict
+        self.param_space = param_space
         self.scaler = scaler
         self.validator = validator
-        self.n_trials = n_trials
+        self.max_evals = max_evals
         self.sample_size = sample_size
 
         self.best_model = None
         self.best_params = None
         self.best_score = float("inf")
-        self.study = None
+        self.trials = Trials()
 
     def get_time_series_sample(self, x: pd.DataFrame, y: pd.Series) -> tuple[pd.DataFrame, pd.Series]:
+
         n_splits = self.validator.n_splits if hasattr(self.validator, "n_splits") else 4
         tscv = TimeSeriesSplit(n_splits=n_splits)
 
@@ -41,6 +42,8 @@ class OptunaTuner:
 
         for fold_idx, (_, val_idx) in enumerate(tscv.split(x)):
             val_x = x.iloc[val_idx]
+
+            # Если fold меньше sample_size, берём всё
             sample_count = min(self.sample_size, len(val_x))
             sampled_indices = np.random.choice(val_x.index, size=sample_count, replace=False)
 
@@ -56,13 +59,12 @@ class OptunaTuner:
         return x_sample, y_sample["item_cnt_month"]
 
     def tune(self, x: pd.DataFrame, y: pd.Series):
-        print(f"Starting Optuna tuning for {self.model_class.__name__}")
+        print(f"Starting Hyperopt tuning for {self.model_class.__name__}")
         logger.info(f"Input x shape: {x.shape}, y shape: {y.shape}")
 
         x_sample, y_sample = self.get_time_series_sample(x, y)
 
-        def objective(trial):
-            params = self.param_space(trial)
+        def objective(params):
             model = self.model_class(**params)
             pipe = Pipeline([
                 ('scale', FunctionTransformer(self.scaler.scale_train)),
@@ -80,10 +82,10 @@ class OptunaTuner:
                 self.best_params = params
                 logger.info(f"New best score: {score:.4f}")
 
-            return score
+            return {'loss': score, 'status': STATUS_OK}
 
-        self.study = optuna.create_study(direction="minimize")
-        self.study.optimize(objective, n_trials=self.n_trials)
+        fmin(fn=objective, space=self.param_space, algo=tpe.suggest,
+             max_evals=self.max_evals, trials=self.trials)
 
         print(f"BEST RMSE {self.model_class.__name__}: {self.best_score:.4f}")
         print(f"BEST PARAMS {self.model_class.__name__}: {self.best_params}")
