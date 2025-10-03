@@ -247,14 +247,13 @@ class FeatureEngineer:
 
         # Selecting feature columns
         feature_cols = [
-            'lag_1_month', 'lag_2_month', 'lag_3_month',
-            'avg_item_cnt_prev_month', 'avg_shop_cnt_prev_month', 'month', 'year',
-            'item_age', 'shop_age', 'category_age', 'group_age',
-            'item_category_id', 'group_id', 'shop_city',
-            'item_name_first4', 'item_name_first6', 'item_name_first11',
-            'category_cnt_lag1', 'category_cnt_median_lag1', 'category_cnt_all_shops_lag1',
-            'category_cnt_all_shops_median_lag1', 'group_cnt_lag1', 'group_cnt_all_shops_lag1',
-            'city_cnt_lag1',
+             'lag_1_month', 'lag_2_month', 'lag_3_month',
+            'avg_item_cnt_prev_month', 'avg_shop_cnt_prev_month', 'month',
+             'item_age', 'shop_age', 'category_age',
+             'item_category_id', 'shop_city',
+             'category_cnt_lag1', 'category_cnt_all_shops_lag1',
+             'group_cnt_lag1', 'group_cnt_all_shops_lag1',
+             'city_cnt_lag1',
         ]
 
         # Splitting into X and y for training, and X_test for prediction
@@ -267,4 +266,3 @@ class FeatureEngineer:
         logger.info(f"Split completed in {time.time() - start:.2f}s")
 
         return x, y, x_test
-

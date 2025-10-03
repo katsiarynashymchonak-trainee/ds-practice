@@ -9,12 +9,12 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
 
-from pipe.sales_prediction.modeling.optuna_tuner import OptunaTuner
 from pipe.sales_prediction.config import PRED_PATH, USE_FEATURE_SELECTION
 from pipe.sales_prediction.data_preparation.data_loader import DataLoader
 from pipe.sales_prediction.data_preparation.standard_scaler_handler import StandardScalerHandler
 from pipe.sales_prediction.feature_enjineering.feature_importance_evaluator import FeatureImportanceEvaluator
 from pipe.sales_prediction.feature_enjineering.feature_selector import FeatureSelector
+from pipe.sales_prediction.modeling.optuna_tuner import OptunaTuner
 from pipe.sales_prediction.modeling.validator import TimeSeriesValidator
 
 logger = logging.getLogger(__name__)
@@ -61,7 +61,7 @@ class ModelTrainer:
             FeatureImportanceEvaluator(model=final_model).get_importance(x)
 
             logger.info(f"RMSE for {model_name}: {tuned_error:.4f}")
-            self._update_best_model(tuned_model, tuned_error, model_name)
+            self._update_best_model(final_model, tuned_error, model_name)
 
         print(f"Best model selected: {self.metadata['type']} with RMSE: {self.metadata['rmse']:.4f}")
         self.best_model.fit(x, y)
@@ -145,13 +145,13 @@ class ModelTrainer:
         logger.info(f"Saving Predictions to {self.pred_path}")
         sub_df.to_csv(self.pred_path, index=False)
 
-        logger.info(f"First 5 predictions:\n{sub_df.head()}")
+        logger.info(f"First 5 predictions: \n{sub_df.head()}")
         logger.info(f"Prediction completed in {time.time() - start:.2f}s")
 
         return predictions
 
     # Saving trained model and metadata to disk
-    def save(self, path: str = "event_pipe.pkl"):
+    def save(self, path: str):
         start = time.time()
         logger.info(f"Saving trained model to {path}...")
         with open(path, 'wb') as file:

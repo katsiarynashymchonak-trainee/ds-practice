@@ -56,7 +56,8 @@ def run_pipeline():
 
     # Modeling
     trainer = ModelTrainer(
-        models=(XGBRegressor(), lgb.LGBMRegressor(verbose=-1), Ridge(), RandomForestRegressor(verbose=-1)),
+        models=(XGBRegressor(), ),
+        # lgb.LGBMRegressor(verbose=-1), Ridge(), RandomForestRegressor(verbose=-1)
         metadata=MODEL_METADATA,
         param_spaces=OPTUNA_SPACES
     )

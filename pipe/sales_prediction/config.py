@@ -21,12 +21,12 @@ X_PATH = os.path.join(BASE_DIR, "data/processed/x.csv")
 X_TEST_PATH = os.path.join(BASE_DIR, "data/processed/x_test.csv")
 Y_PATH = os.path.join(BASE_DIR, "data/processed/y.csv")
 
-FORM_PREP_DATA = 0
+FORM_PREP_DATA = 1
 USE_FEATURE_SELECTION = 0
 SAMPLE_BEFORE_TUNING = 1
 
 RF_BASE_PATH = os.path.join(BASE_DIR, "models/rfr.pkl")
-TRAIN_RFR_MODEL = 0
+TRAIN_RFR_MODEL = 1
 
 # Metadata
 MODEL_METADATA = {

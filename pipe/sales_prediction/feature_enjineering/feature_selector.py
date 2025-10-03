@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 
 class FeatureSelector:
     def __init__(self, model=None, random_state=42, verbose=True, importance_threshold=0.01):
-        self.model = model or RandomForestRegressor(n_jobs=-1, max_depth=10, random_state=random_state)
+        self.model = model or RandomForestRegressor(n_jobs=-1, max_depth=6, n_estimators=600)
         self.random_state = random_state
         self.verbose = verbose
         self.importance_threshold = importance_threshold
