@@ -9,7 +9,7 @@ import pandas as pd
 import shap
 from sklearn.ensemble import RandomForestRegressor
 
-from pipe.sales_prediction.config import RF_BASE_PATH, TRAIN_RFR_MODEL
+from pipe.src.config import RF_BASE_PATH, TRAIN_RFR_MODEL
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)

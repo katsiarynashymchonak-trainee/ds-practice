@@ -2,7 +2,7 @@
 
 import logging
 import pandas as pd
-from pipe.sales_prediction.config import (
+from pipe.src.config import (
     TRAIN_PATH, TEST_PATH, ITEMS_PATH, SUB_PATH, CATS_PATH, SHOPS_PATH
 )
 

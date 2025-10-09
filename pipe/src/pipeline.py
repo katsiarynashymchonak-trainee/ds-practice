@@ -12,10 +12,10 @@ from config import (
     MODEL_SAVE_PATH, MODEL_METADATA, OPTUNA_SPACES,
     X_PATH, X_TEST_PATH, Y_PATH, FORM_PREP_DATA,
 )
-from pipe.sales_prediction.data_preparation.data_loader import DataLoader
-from pipe.sales_prediction.data_preparation.data_preprocessor import DataPreprocessor
-from pipe.sales_prediction.feature_enjineering.feature_enjineer import FeatureEngineer
-from pipe.sales_prediction.modeling.model_trainer import ModelTrainer
+from pipe.src.data_preparation.data_loader import DataLoader
+from pipe.src.data_preparation.data_preprocessor import DataPreprocessor
+from pipe.src.feature_enjineering.feature_enjineer import FeatureEngineer
+from pipe.src.modeling.model_trainer import ModelTrainer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
