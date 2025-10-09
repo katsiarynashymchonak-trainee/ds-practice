@@ -7,7 +7,14 @@ g = Github(os.getenv("MY_GITHUB_TOKEN"))
 
 repo_name = os.getenv("GITHUB_REPOSITORY")
 repo = g.get_repo(repo_name)
-pr_number = int(os.getenv("GITHUB_REF").split("/")[-1])
+ref = os.getenv("GITHUB_REF", "")
+parts = ref.split("/")
+if parts[-1].isdigit():
+    pr_number = int(parts[-1])
+else:
+    pr_number = None  # или обработка ошибки
+    print(f"Невозможно извлечь номер PR из GITHUB_REF: {ref}")
+
 pr = repo.get_pull(pr_number)
 
 diff = pr.diff_url  # или получи изменения через pr.get_files()
