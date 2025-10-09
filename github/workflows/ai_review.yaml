@@ -2,9 +2,11 @@ name: AI Code Review
 
 on:
   push:
-#  pull_request:
-#    types: [opened, synchronize]
-#  workflow_dispatch:
+    branches:
+      - '**'
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
 
 
 jobs:
