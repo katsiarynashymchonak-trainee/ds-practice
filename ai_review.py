@@ -28,6 +28,7 @@ except ValueError:
     print(f"Невозможно преобразовать PR_NUMBER в число: {pr_number}")
     exit(1)
 
+
 # Получение объекта Pull Request
 pr = repo.get_pull(pr_number)
 
