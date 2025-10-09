@@ -2,11 +2,9 @@ name: AI Code Review
 
 on:
   push:
-    branches:
-      - 'DS-3'
 #  pull_request:
 #    types: [opened, synchronize]
-  workflow_dispatch:
+#  workflow_dispatch:
 
 
 jobs:
