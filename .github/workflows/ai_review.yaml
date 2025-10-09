@@ -1,15 +1,14 @@
-name: AI Code Review
+name: AI Review
 
 on:
-  push:
-    branches:
-      - '**'
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:  # позволяет запускать вручную
 
 jobs:
   review:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,10 +19,12 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install openai PyGithub
 
       - name: Run AI Review
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GITHUB_TOKEN: ${{ github.token }}
+          MY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: python ai_review.py
