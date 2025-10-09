@@ -39,7 +39,7 @@ diff_url = pr.diff_url
 prompt = f"Проанализируй следующий diff и предложи улучшения:\n{diff_url}"
 
 response = client.chat.completions.create(
-    model="gpt-4",
+    model="gpt-5",
     messages=[{"role": "user", "content": prompt}]
 )
 
