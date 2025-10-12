@@ -66,4 +66,4 @@ for i, chunk in enumerate(chunks):
 
 # Post the final review as a comment on the pull request
 full_review = "\n\n".join(reviews)
-pr.create_issue_comment(f"🧠 **AI Review Summary**\n\n{full_review}")
+pr.create_issue_comment(f"**AI Review Summary**\n\n{full_review}")
