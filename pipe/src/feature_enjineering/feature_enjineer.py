@@ -8,11 +8,30 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
+from pipe.src.config import LE_CITY_PATH, LE_GROUPS_PATH, LE_ITEMF4_PATH, LE_ITEMF6_PATH, LE_ITEMF11_PATH, FEATURE_COLS
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
 class FeatureEngineer:
+
+    # Encoding categories and saving result to file
+    @staticmethod
+    def encode_category(data, filename='label_mapping.csv'):
+        # Apply LabelEncoder
+        le = LabelEncoder()
+        encoded_values = le.fit_transform(data)
+
+        # Save mapping into file
+        mapping_df = pd.DataFrame({
+            'Encoded Label': range(len(le.classes_)),
+            'Original Value': le.classes_
+        })
+        mapping_df.to_csv(filename, index=False)
+        logger.info(f'LE mapping saved to {filename}')
+
+        return encoded_values
 
     # Removing shops that are not present in the test set
     @staticmethod
@@ -77,9 +96,9 @@ class FeatureEngineer:
         logger.info(f"{new_col} added in {time.time() - start:.2f}s")
         return data
 
-    # Encoding categories and extracting group_id
+    # Extracting group_id
     @staticmethod
-    def encode_categories(categories: pd.DataFrame) -> pd.DataFrame:
+    def extract_groups(categories: pd.DataFrame) -> pd.DataFrame:
         start = time.time()
         logger.info("Encoding category groups...")
 
@@ -88,8 +107,7 @@ class FeatureEngineer:
         categories['item_category_name'] = categories['item_category_name'].astype(str)
         categories['group_name'] = categories['item_category_name'].str.extract(r'(^[\w\s]*)')[0].str.strip()
 
-        le = LabelEncoder()
-        categories['group_id'] = le.fit_transform(categories['group_name'].fillna("unknown"))
+        categories['group_id'] = FeatureEngineer.encode_category(categories.group_name.values, LE_GROUPS_PATH)
 
         logger.info(f"Category encoding completed in {time.time() - start:.2f}s")
         return categories
@@ -103,8 +121,7 @@ class FeatureEngineer:
         shops['shop_name'] = shops['shop_name'].str.lower().str.replace(r'[^\w\d\s]', '', regex=True)
         shops['shop_city'] = shops['shop_name'].str.split().str[0]
         shops.loc[shops['shop_id'].isin([12, 55]), 'shop_city'] = 'online'
-        le = LabelEncoder()
-        shops['shop_city'] = le.fit_transform(shops.shop_city.values)
+        shops['shop_city'] = FeatureEngineer.encode_category(shops.shop_city.values, LE_CITY_PATH)
         logger.info(f"Shop processing completed in {time.time() - start:.2f}s")
         return shops
 
@@ -125,10 +142,9 @@ class FeatureEngineer:
         items['item_name_first6'] = items['item_name_no_space'].str[:6]
         items['item_name_first11'] = items['item_name_no_space'].str[:11]
 
-        le = LabelEncoder()
-        items['item_name_first4'] = le.fit_transform(items['item_name_first4'].values)
-        items['item_name_first6'] = le.fit_transform(items['item_name_first6'].values)
-        items['item_name_first11'] = le.fit_transform(items['item_name_first11'].values)
+        items['item_name_first4'] = FeatureEngineer.encode_category(items['item_name_first4'].values, LE_ITEMF4_PATH)
+        items['item_name_first6'] = FeatureEngineer.encode_category(items['item_name_first6'].values, LE_ITEMF6_PATH)
+        items['item_name_first11'] = FeatureEngineer.encode_category(items['item_name_first11'].values, LE_ITEMF11_PATH)
 
         logger.info(f"Item processing completed in {time.time() - start:.2f}s")
         return items
@@ -192,7 +208,7 @@ class FeatureEngineer:
         logger.info("Starting full feature engineering...")
 
         # Encoding categories
-        categories = FeatureEngineer.encode_categories(categories)
+        categories = FeatureEngineer.extract_groups(categories)
 
         # Processing shops
         shops = FeatureEngineer.process_shops(shops)
@@ -246,15 +262,7 @@ class FeatureEngineer:
         final_train_features = final_train_features[final_train_features['date_block_num'] >= min_train_month].copy()
 
         # Selecting feature columns
-        feature_cols = [
-             'lag_1_month', 'lag_2_month', 'lag_3_month',
-            'avg_item_cnt_prev_month', 'avg_shop_cnt_prev_month', 'month',
-             'item_age', 'shop_age', 'category_age',
-             'item_category_id', 'shop_city',
-             'category_cnt_lag1', 'category_cnt_all_shops_lag1',
-             'group_cnt_lag1', 'group_cnt_all_shops_lag1',
-             'city_cnt_lag1',
-        ]
+        feature_cols = FEATURE_COLS
 
         # Splitting into X and y for training, and X_test for prediction
         x = final_train_features[feature_cols]

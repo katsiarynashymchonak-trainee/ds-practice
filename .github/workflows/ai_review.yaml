@@ -3,7 +3,7 @@ name: AI Review
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  workflow_dispatch:  # позволяет запускать вручную
+  workflow_dispatch:
 
 jobs:
   review:

@@ -25,6 +25,26 @@ class FeatureSelector:
         self.shap_values = None
         self.shap_importance = None
 
+    def evaluate_feature_importance(self, x: pd.DataFrame, importances: np.ndarray) -> pd.DataFrame:
+        importance_df = pd.DataFrame({
+            'feature': x.columns,
+            'importance': importances
+        }).sort_values(by='importance', ascending=False)
+
+        self.selected_features_importance = importance_df[
+            importance_df['importance'] >= self.importance_threshold
+            ]['feature'].tolist()
+
+        rejected = importance_df[
+            importance_df['importance'] < self.importance_threshold
+            ]['feature'].tolist()
+
+        print(f"Importance-based selection: {len(self.selected_features_importance)} features out of {x.shape[1]}")
+        print(f"Selected features: {self.selected_features_importance}")
+        print(f"Rejected features: {rejected}")
+
+        return importance_df
+
     # Fitting model and selecting features based on built-in importance
     def fit_importance(self, x: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
         start = time.time()
@@ -36,34 +56,16 @@ class FeatureSelector:
             logger.info(f"Saving model to {RF_BASE_PATH}")
             with open(RF_BASE_PATH, 'wb') as f:
                 dill.dump(self.model, f)
-
         else:
             logger.info(f"Loading model from {RF_BASE_PATH}")
             with open(RF_BASE_PATH, 'rb') as f:
                 self.model = dill.load(f)
 
-        # Extracting feature importance
-        importance = self.model.feature_importances_
-        importance_df = pd.DataFrame({
-            'feature': x.columns,
-            'importance': importance
-        }).sort_values(by='importance', ascending=False)
+        # Вызов нового метода
+        importances = self.model.feature_importances_
+        self.importance_df = self.evaluate_feature_importance(x, importances)
 
-        # Selecting features above threshold
-        self.selected_features_importance = importance_df[
-            importance_df['importance'] >= self.importance_threshold
-            ]['feature'].tolist()
-
-        # Logging rejected features
-        rejected = importance_df[
-            importance_df['importance'] < self.importance_threshold
-            ]['feature'].tolist()
-
-        print(f"Selected {len(self.selected_features_importance)} features out of {x.shape[1]}")
-        print(f"Selected features: {self.selected_features_importance}")
-        print(f"Rejected features: {rejected}")
         logger.info(f"Feature importance evaluation completed in {time.time() - start:.2f}s")
-
         return x[self.selected_features_importance]
 
     # Fitting SHAP explainer and selecting features based on SHAP values

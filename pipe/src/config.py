@@ -1,13 +1,11 @@
 # config.py
 import os
-
 from hyperopt import hp
 
 # Получаем базовую директорию от текущего файла
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Main paths
-
 TRAIN_PATH = os.path.join(BASE_DIR, "data/raw/sales_train.csv")
 TEST_PATH = os.path.join(BASE_DIR, "data/raw/test.csv")
 ITEMS_PATH = os.path.join(BASE_DIR, "data/raw/items.csv")
@@ -17,14 +15,37 @@ SUB_PATH = os.path.join(BASE_DIR, "data/raw/sample_submission.csv")
 PRED_PATH = os.path.join(BASE_DIR, "data/processed/sample_submission.csv")
 MODEL_SAVE_PATH = os.path.join(BASE_DIR, "models/sales_model.pkl")
 
+# Processed data files
 X_PATH = os.path.join(BASE_DIR, "data/processed/x.csv")
 X_TEST_PATH = os.path.join(BASE_DIR, "data/processed/x_test.csv")
 Y_PATH = os.path.join(BASE_DIR, "data/processed/y.csv")
 
-FORM_PREP_DATA = 1
+# Labels-value pairs
+LE_CITY_PATH = os.path.join(BASE_DIR, "data/labels/shop_city_labels.csv")
+LE_GROUPS_PATH = os.path.join(BASE_DIR, "data/labels/group_name_labels.csv")
+LE_ITEMF4_PATH = os.path.join(BASE_DIR, "data/labels/item_first4_labels.csv")
+LE_ITEMF6_PATH = os.path.join(BASE_DIR, "data/labels/item_first6_labels.csv")
+LE_ITEMF11_PATH = os.path.join(BASE_DIR, "data/labels/item_first11_labels.csv")
+
+# Remaining features for result model
+FEATURE_COLS = [
+            'lag_1_month', 'lag_2_month', 'lag_3_month',
+            'avg_item_cnt_prev_month', 'avg_shop_cnt_prev_month', 'month',
+            'item_age', 'shop_age', 'category_age',
+            'item_category_id', 'shop_city',
+            'category_cnt_lag1', 'category_cnt_all_shops_lag1',
+            'group_cnt_lag1', 'group_cnt_all_shops_lag1',
+            'city_cnt_lag1', 'year'
+        ]
+
+# To reform dataset
+FORM_PREP_DATA = 0
+# To use feature selection with rfr model
 USE_FEATURE_SELECTION = 0
+# Use random samples to tune hyperparams
 SAMPLE_BEFORE_TUNING = 1
 
+# To retrain base rfr model
 RF_BASE_PATH = os.path.join(BASE_DIR, "models/rfr.pkl")
 TRAIN_RFR_MODEL = 1
 
