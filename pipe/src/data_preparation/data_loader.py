@@ -1,21 +1,32 @@
 # data_loader.py
 
-import pandas as pd
 import logging
+import pandas as pd
+from pipe.src.config import (
+    TRAIN_PATH, TEST_PATH, ITEMS_PATH, SUB_PATH, CATS_PATH, SHOPS_PATH
+)
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-from config import (
-    TRAIN_PATH, TEST_PATH, ITEMS_PATH, SUB_PATH
-)
 
 class DataLoader:
     def __init__(self):
         self.train_path = TRAIN_PATH
         self.test_path = TEST_PATH
         self.items_path = ITEMS_PATH
+        self.categories_path = CATS_PATH
+        self.shops_path = SHOPS_PATH
         self.sub_path = SUB_PATH
+
+    def load_data(self):
+        train = self.load_train()
+        items = self.load_items()
+        categories = self.load_categories()
+        shops = self.load_shops()
+        test = self.load_test(train["date_block_num"].max() + 1)
+
+        return train, items, categories, shops, test
 
     def load_train(self):
         logger.info("Loading training data...")
@@ -29,7 +40,7 @@ class DataLoader:
         train.drop(columns=["date"], inplace=True)
 
         # Valid price
-        train = train[train["item_price"] >= 0]
+        train = train[train["item_price"] > 0]
         return train
 
     def load_test(self, next_month_num):
@@ -45,6 +56,16 @@ class DataLoader:
         logger.info("Loading item metadata...")
         items = pd.read_csv(self.items_path)
         return items
+
+    def load_categories(self):
+        logger.info("Loading categories metadata...")
+        cats = pd.read_csv(self.categories_path)
+        return cats
+
+    def load_shops(self):
+        logger.info("Loading shops metadata...")
+        shops = pd.read_csv(self.shops_path)
+        return shops
 
     def load_submission_file(self):
         logger.info("Loading submission file...")

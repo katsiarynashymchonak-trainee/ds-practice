@@ -78,7 +78,7 @@ docs/_build/
 target/
 
 # Jupyter Notebook
-.ipynb_checkpoints
+notebooks/.ipynb_checkpoints
 
 # IPython
 profile_default/
@@ -208,3 +208,6 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 pipe/data
+
+.tmp.driveupload/
+/pipe/.idea/
