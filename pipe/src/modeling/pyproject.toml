@@ -7,15 +7,16 @@ readme = "README.md"
 packages = [
   { include = "modeling" }
 ]
+
+[tool.poetry.dependencies]
 python = ">=3.12"
-dependencies = [
-  "hyperopt",
-  "optuna",
-  "numpy",
-  "pandas",
-  "dill",
-  "scikit-learn"
-]
+hyperopt = "*"
+optuna = "*"
+numpy = "*"
+pandas = "*"
+dill = "*"
+scikit-learn = "*"
+
 
 [tool.poetry.plugins."poetry.dynamic-versioning"]
 "poetry-dynamic-versioning" = "poetry_dynamic_versioning.plugin"

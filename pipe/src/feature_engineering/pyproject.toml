@@ -7,14 +7,14 @@ readme = "README.md"
 packages = [
   { include = "feature_engineering" }
 ]
+
+[tool.poetry.dependencies]
 python = ">=3.12"
-dependencies = [
-  "numpy",
-  "pandas",
-  "dill",
-  "shap",
-  "scikit-learn"
-]
+numpy = "*"
+pandas = "*"
+dill = "*"
+shap = "*"
+scikit-learn = "*"
 
 [tool.poetry.plugins."poetry.dynamic-versioning"]
 "poetry-dynamic-versioning" = "poetry_dynamic_versioning.plugin"
