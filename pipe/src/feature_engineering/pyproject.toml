@@ -1,20 +1,20 @@
 [tool.poetry]
 name = "feature_engineering_5632425"
-version = "0.0.0"  # будет заменена автоматически
+version = "0.1.1"
 description = "Feature extraction and validation schema tools"
 authors = ["Katsiaryna <katsiaryna.shymchonak@innowise.com>"]
 readme = "README.md"
 packages = [
   { include = "feature_engineering" }
 ]
-
-[tool.poetry.dependencies]
 python = ">=3.12"
-numpy = "*"
-pandas = "*"
-dill = "*"
-shap = "*"
-scikit-learn = "*"
+dependencies = [
+  "numpy",
+  "pandas",
+  "dill",
+  "shap",
+  "scikit-learn"
+]
 
 [tool.poetry.plugins."poetry.dynamic-versioning"]
 "poetry-dynamic-versioning" = "poetry_dynamic_versioning.plugin"
