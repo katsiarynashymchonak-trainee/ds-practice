@@ -1,9 +1,6 @@
 import logging
 
-import lightgbm as lgb
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import Ridge
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
 from xgboost import XGBRegressor
@@ -14,8 +11,8 @@ from config import (
 )
 from pipe.src.data_preparation.data_loader import DataLoader
 from pipe.src.data_preparation.data_preprocessor import DataPreprocessor
-from pipe.src.feature_engineering.feature_engineer import FeatureEngineer
-from pipe.src.modeling.model_trainer import ModelTrainer
+from pipe.src.feature_engineering import FeatureEngineer
+from pipe.src.modeling.modeling.model_trainer import ModelTrainer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
