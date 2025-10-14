@@ -1,12 +1,19 @@
 # Define package for modeling
 [project]
 name = "modeling-5632425"
-version = "0.1.0"
 description = "Hyperparameter optimization and validation tools"
 authors = [{ name = "Katsiaryna", email = "katsiaryna.shymchonak@innowise.com" }]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = ["hyperopt", "optuna", "numpy", "pandas", "dill", "scikit-learn"]
+
+[tool.poetry.plugins."poetry.dynamic-versioning"]
+"poetry-dynamic-versioning" = "poetry_dynamic_versioning.plugin"
+
+[tool.dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
 
 [build-system]
 requires = ["setuptools>=61.0"]
