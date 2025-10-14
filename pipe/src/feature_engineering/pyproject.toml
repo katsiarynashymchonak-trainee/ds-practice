@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "feature-engineering-5632425"
+name = "feature_engineering_5632425"
 version = "0.0.0"  # будет заменена автоматически
 description = "Feature extraction and validation schema tools"
 authors = ["Katsiaryna <katsiaryna.shymchonak@innowise.com>"]

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "modeling-5632425"
+name = "modeling_5632425"
 version = "0.0.0"  # будет заменена автоматически плагином
 description = "Hyperparameter optimization and validation tools"
 authors = ["Katsiaryna <katsiaryna.shymchonak@innowise.com>"]
