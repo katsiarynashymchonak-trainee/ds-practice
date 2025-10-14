@@ -19,7 +19,6 @@ jobs:
         run: pip install poetry
 
       - name: Publish feature_engineering package
-        working-directory: pipe/src/feature_engineering
         run: |
           cd $(find . -type d -name feature_engineering)
           poetry publish --build
@@ -27,7 +26,6 @@ jobs:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Publish modeling package
-        working-directory: pipe/src/modeling
         run: |
           cd $(find . -type d -name modeling)
           poetry publish --build
