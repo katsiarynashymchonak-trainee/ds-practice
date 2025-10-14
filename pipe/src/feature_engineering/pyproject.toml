@@ -1,11 +1,20 @@
-# Define package for feature-engineering
-[project]
+[tool.poetry]
 name = "feature-engineering-5632425"
+version = "0.0.0"
 description = "Feature extraction and validation schema tools"
-authors = [{ name = "Katsiaryna", email = "katsiaryna.shymchonak@innowise.com" }]
+authors = ["Katsiaryna <katsiaryna.shymchonak@innowise.com>"]
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = ["numpy", "pandas", "dill", "shap", "scikit-learn"]
+packages = [
+  { include = "feature_engineering" }
+]
+python = ">=3.12"
+dependencies = [
+  "numpy",
+  "pandas",
+  "dill",
+  "shap",
+  "scikit-learn"
+]
 
 [tool.poetry.plugins."poetry.dynamic-versioning"]
 "poetry-dynamic-versioning" = "poetry_dynamic_versioning.plugin"
@@ -15,11 +24,6 @@ enable = true
 vcs = "git"
 style = "pep440"
 
-
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["feature_engineering*"]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
