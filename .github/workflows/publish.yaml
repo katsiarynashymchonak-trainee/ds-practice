@@ -2,8 +2,6 @@ name: Publish multiple packages to PyPI
 
 on:
   push:
-    paths:
-      - 'pipe/**'
 
 jobs:
   publish:
