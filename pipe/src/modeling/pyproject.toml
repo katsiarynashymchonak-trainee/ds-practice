@@ -1,0 +1,17 @@
+# Define package for modeling
+[project]
+name = "modeling-5632425"
+version = "0.1.0"
+description = "Hyperparameter optimization and validation tools"
+authors = [{ name = "Katsiaryna", email = "katsiaryna.shymchonak@innowise.com" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["hyperopt", "optuna", "numpy", "pandas", "dill", "scikit-learn"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["modeling*"]
