@@ -17,6 +17,9 @@ jobs:
 
       - name: Install Poetry
         run: pip install poetry
+        
+      - name: Bump patch version
+        run: poetry version patch
 
       - name: Publish feature_engineering package
         working-directory: pipe/src/feature_engineering
