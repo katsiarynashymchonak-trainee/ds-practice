@@ -15,12 +15,17 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Debug workspace
+        run: |
+          echo "Current directory: $(pwd)"
+          ls -R
+
       - name: Install Poetry
         run: pip install poetry
 
       - name: Publish feature_engineering package
         working-directory: pipe/src/feature_engineering
-        run: 
+        run:
           poetry publish --build
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
