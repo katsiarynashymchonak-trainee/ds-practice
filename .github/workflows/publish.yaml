@@ -19,15 +19,15 @@ jobs:
         run: pip install poetry
 
       - name: Publish feature_engineering package
-        run: |
-          cd $(find . -type d -name feature_engineering)
+        working-directory: pipe/src/feature_engineering
+        run: 
           poetry publish --build
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Publish modeling package
-        run: |
-          cd $(find . -type d -name modeling)
+        working-directory: pipe/src/modeling
+        run:
           poetry publish --build
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
