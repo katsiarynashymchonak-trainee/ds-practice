@@ -14,7 +14,7 @@ from config import (
 )
 from pipe.src.data_preparation.data_loader import DataLoader
 from pipe.src.data_preparation.data_preprocessor import DataPreprocessor
-from pipe.src.feature_enjineering.feature_enjineer import FeatureEngineer
+from pipe.src.feature_engineering.feature_engineer import FeatureEngineer
 from pipe.src.modeling.model_trainer import ModelTrainer
 
 logger = logging.getLogger(__name__)

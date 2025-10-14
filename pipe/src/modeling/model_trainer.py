@@ -12,8 +12,8 @@ from sklearn.preprocessing import FunctionTransformer
 from pipe.src.config import PRED_PATH, USE_FEATURE_SELECTION
 from pipe.src.data_preparation.data_loader import DataLoader
 from pipe.src.data_preparation.standard_scaler_handler import StandardScalerHandler
-from pipe.src.feature_enjineering.feature_importance_evaluator import FeatureImportanceEvaluator
-from pipe.src.feature_enjineering.feature_selector import FeatureSelector
+from pipe.src.feature_engineering.feature_importance_evaluator import FeatureImportanceEvaluator
+from pipe.src.feature_engineering.feature_selector import FeatureSelector
 from pipe.src.modeling.optuna_tuner import OptunaTuner
 from pipe.src.modeling.validator import TimeSeriesValidator
 
