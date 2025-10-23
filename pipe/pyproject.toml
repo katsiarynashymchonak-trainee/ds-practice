@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "future_sales_inno_ds_project"
+version = "0.0.15"
+description = "DS project"
+authors = ["Katsiaryna <katsiaryna.shymchonak@innowise.com>"]
+readme = "README.md"
+packages = [
+  { include = "future_sales_inno_ds_project", from = "src" }
+]
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+
+openai = "~2.2.0"
+neptune = "~1.14.0"
+PyGithub = "~2.4.0"
+
+numpy = "~1.26.4"
+pandas = "~2.2.2"
+scikit-learn = "~1.5.1"
+optuna = "~4.5.0"
+dill = "~0.3.8"
+hyperopt = "~0.2.7"
+lightgbm = "~4.6.0"
+xgboost = "~3.0.5"
+keras = "~3.11.3"
+python-dotenv = "~0.21.0"
+shap = "~0.48.0"
+requests = "~2.32.4"
+setuptools = "<81"
+
+[tool.poetry.plugins."poetry.dynamic-versioning"]
+"poetry-dynamic-versioning" = "poetry_dynamic_versioning.plugin"
+
+[tool.dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
