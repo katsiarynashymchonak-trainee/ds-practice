@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import shap
-from sklearn.metrics import root_mean_squared_error
+from sklearn.metrics import mean_squared_error
 
 from ..config import HISTOGRAM_PATH, DYNAMIC_VS_ERROR_PATH, BEESWARM_PATH, SHAP_LSTM_PATH
 from ..feature_engineering.feature_importance_evaluator import FeatureImportanceEvaluator
@@ -31,7 +31,7 @@ class ModelInterpreter:
 
         # Fold-wise RMSE
         rmse_by_fold = df.groupby("fold").apply(
-            lambda g: root_mean_squared_error(g["y_true"], g["y_pred"])
+            lambda g: mean_squared_error(g["y_true"], g["y_pred"], squared=False)
         )
         self.log(f"Fold-wise RMSE:\n{rmse_by_fold}")
         if self.run:

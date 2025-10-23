@@ -91,14 +91,20 @@ def run_pipeline(NEPTUNE_API_TOKEN: str):
     trainer.predict(x_test)
     trainer.save(MODEL_SAVE_PATH)
 
-    # Log parameters, metrics, and artifacts to Neptune
-    if MODEL_TYPE == "LSTM":
-        run["parameters"] = str(trainer.model.get_config())
-    else:
-        run["parameters"] = trainer.model.get_params()
+    # Log model parameters to Neptune (robust across model types)
+    try:
+        if MODEL_TYPE == "LSTM":
+            config = trainer.model.get_config()
+            run["parameters"] = str(config) if config is not None else "N/A"
+        else:
+            params = getattr(trainer.model, "get_params", lambda: None)()
+            run["parameters"] = params if params is not None else "N/A"
+    except Exception as e:
+        run["parameters"] = f"Failed to extract parameters: {str(e)}"
+
     run["eval/rmse"] = rmse
     run["model/type"] = MODEL_TYPE
-    run["artifacts/model"].upload(MODEL_SAVE_PATH)
+    run["artifacts/model"].upload(str(MODEL_SAVE_PATH))
 
     # Log best parameters if available
     if hasattr(trainer, "best_params") and trainer.best_params:

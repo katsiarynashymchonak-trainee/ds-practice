@@ -17,16 +17,15 @@ RUN apt-get update && apt-get install -y \
 # Copy dependency file into the container
 COPY requirements.txt .
 
-RUN pip uninstall -y -r requirements.txt || true && \
-    pip cache purge && \
+RUN pip cache purge && \
     pip install --no-cache-dir -r requirements.txt
 
 # Upgrade pip and essential packaging tools
 RUN pip install --upgrade pip setuptools wheel
 
-RUN pip install --no-cache-dir -r requirements.txt \
-    dvc[gs,gdrive] \
-    apache-airflow==2.7.2 \
+RUN pip install dvc[gs,gdrive]
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir "apache-airflow==2.7.2" \
     --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.7.2/constraints-3.11.txt"
 
 # Check for broken dependencies (non-blocking)
