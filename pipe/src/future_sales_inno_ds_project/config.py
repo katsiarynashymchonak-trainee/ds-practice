@@ -40,6 +40,8 @@ DYNAMIC_VS_ERROR_PATH = SHAP_DIR / "dynamic_vs_error.png"
 BEESWARM_PATH = SHAP_DIR / "shap_beeswarm.png"
 SHAP_LSTM_PATH = SHAP_DIR / "shap_lstm_summary.png"
 
+BESR_PARAMS_PATH = BASE_DIR / "data" / "best_params"
+
 # Remaining features for result model
 FEATURE_COLS = [
     'lag_1_month', 'lag_2_month', 'lag_3_month',

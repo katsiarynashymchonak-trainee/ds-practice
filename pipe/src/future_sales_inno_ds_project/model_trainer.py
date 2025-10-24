@@ -14,7 +14,7 @@ from .config import (
     USE_FEATURE_SELECTION,
     USE_OPTUNA,
     USE_PARALLEL_TUNING,
-    MODEL_TYPE
+    MODEL_TYPE, BESR_PARAMS_PATH
 )
 from .data_preparation.data_loader import DataLoader
 from .data_preparation.standard_scaler_handler import StandardScalerHandler
@@ -43,6 +43,9 @@ class ModelTrainer:
         self.selector = FeatureSelector() if USE_FEATURE_SELECTION else None
         self.tuner_class = OptunaTuner if USE_OPTUNA else HyperoptTuner
         self.neptune_run = neptune_run
+        if self.neptune_run:
+            self.neptune_run["config/USE_FEATURE_SELECTION"] = USE_FEATURE_SELECTION
+            self.neptune_run["config/USE_PARALLEL_TUNING"] = USE_PARALLEL_TUNING
 
         # Create model instance using factory pattern
         self.model_type = model_type
@@ -124,15 +127,10 @@ class ModelTrainer:
                 validator=self.validator,
             )
             tuner.tune(x, y)
-            tuner.save_params_txt(f"../data/best_params/{model_name}.txt")
+            tuner.save_params_txt(BESR_PARAMS_PATH / "{model_name}.txt")
             return tuner.best_model, tuner.best_score
         else:
-            # Run cross-validation and log RMSE per fold to Neptune
             errors = self.validator.validate(model, x, y)
-            if self.neptune_run:
-                for i, fold_rmse in enumerate(errors):
-                    self.neptune_run[f"metrics/rmse/fold_{i + 1}"].append(fold_rmse)
-                self.neptune_run["metrics/rmse/mean"] = errors.mean()
             return model, errors.mean()
 
     def _update_best_model(self, model, error, model_name):
@@ -215,6 +213,7 @@ class ModelTrainer:
     def save(self, path: str):
         # Save trained model and metadata to disk
         start = time.time()
+        self.neptune_run["artifacts/predictions"].upload(path)
         logger.info(f"Saving trained model to {path}...")
         with open(path, 'wb') as file:
             dill.dump({
