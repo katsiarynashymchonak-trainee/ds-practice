@@ -14,7 +14,7 @@ from .config import (
     USE_FEATURE_SELECTION,
     USE_OPTUNA,
     USE_PARALLEL_TUNING,
-    MODEL_TYPE, BESR_PARAMS_PATH
+    MODEL_TYPE, BEST_PARAMS_PATH
 )
 from .data_preparation.data_loader import DataLoader
 from .data_preparation.standard_scaler_handler import StandardScalerHandler
@@ -127,7 +127,7 @@ class ModelTrainer:
                 validator=self.validator,
             )
             tuner.tune(x, y)
-            tuner.save_params_txt(BESR_PARAMS_PATH / "{model_name}.txt")
+            tuner.save_params_txt(BEST_PARAMS_PATH / "{model_name}.txt")
             return tuner.best_model, tuner.best_score
         else:
             errors = self.validator.validate(model, x, y)
