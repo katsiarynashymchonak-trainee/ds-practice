@@ -18,15 +18,8 @@ jobs:
       - name: Install Poetry
         run: pip install poetry
 
-      - name: Publish feature_engineering package
-        working-directory: pipe/src/feature_engineering
-        run:
-          poetry publish --build
-        env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
-
-      - name: Publish modeling package
-        working-directory: pipe/src/modeling
+      - name: Publish future sales package
+        working-directory: /
         run:
           poetry publish --build
         env:
