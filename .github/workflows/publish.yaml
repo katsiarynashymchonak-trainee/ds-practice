@@ -19,8 +19,7 @@ jobs:
         run: pip install poetry
 
       - name: Publish future sales package
-        working-directory: pipe/src/
-        run:
-          poetry publish --build
+        working-directory: pipe/
+        run: poetry publish --build
         env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+          POETRY_PYPI_TOKEN_PYPI: ${{secrets.PYPI_API_TOKEN }}
