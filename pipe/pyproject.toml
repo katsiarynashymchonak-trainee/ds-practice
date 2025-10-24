@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "future_sales_inno_ds_project"
-version = "0.0.16"
+version = "0.0.18"
 description = "DS project"
 authors = ["Katsiaryna <katsiaryna.shymchonak@innowise.com>"]
 readme = "README.md"
