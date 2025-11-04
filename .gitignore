@@ -12,7 +12,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+pipe/dist/
 downloads/
 eggs/
 .eggs/
@@ -216,3 +216,4 @@ notebooks/pypi_test/notebook/.ipynb_checkpoints/
 pipe/src/.neptune/
 shap_graphs/
 
+/data

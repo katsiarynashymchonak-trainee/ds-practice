@@ -12,7 +12,7 @@ dill==0.3.8
 typing-extensions>=4.11,<5
 openai==2.2.0
 tensorflow==2.14.0
-keras==2.14.0
+# keras==2.14.0
 protobuf==4.23.4
 
 # Utils
@@ -24,3 +24,4 @@ matplotlib>=3.8.0
 # Integrations
 neptune==1.14.0
 PyGithub==2.4.0
+dvc[gs,gdrive]==3.50.1

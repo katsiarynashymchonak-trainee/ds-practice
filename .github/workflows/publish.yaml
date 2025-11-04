@@ -2,6 +2,8 @@ name: Publish multiple packages to PyPI
 
 on:
   push:
+    branches:
+      - main
 
 jobs:
   publish:
