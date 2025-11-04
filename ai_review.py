@@ -57,4 +57,7 @@ for i, chunk in enumerate(chunks):
         reviews.append(f"### Review Part {i+1}:\nError during analysis: {str(e)}")
 
 full_review = "\n\n".join(reviews)
+print("===== AI Review Output =====")
+print(full_review)
+print("============================")
 pr.create_issue_comment(f"**AI Review Summary**\n\n{full_review}")
