@@ -10,7 +10,6 @@ dill==0.3.8
 
 # TensorFlow and Keras
 typing-extensions>=4.11,<5
-openai==2.2.0
 tensorflow==2.14.0
 # keras==2.14.0
 protobuf==4.23.4
