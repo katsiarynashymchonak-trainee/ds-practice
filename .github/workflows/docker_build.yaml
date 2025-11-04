@@ -2,8 +2,6 @@ name: Build and Push Docker Image to GitHub Container registry
 
 on:
   push:
-    branches:
-      - main
 
 jobs:
   build-and-push:
