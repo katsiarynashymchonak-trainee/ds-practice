@@ -16,10 +16,10 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_PAT }}
 
       - name: Build Docker image
-        run: docker build -t ghcr.io/ekaterinashimchyonok/ds-pipeline:latest .
+        run: docker build -t ghcr.io/katsiarynashymchonak-trainee/ds-pipeline:latest .
 
       - name: Push Docker image
-        run: docker push ghcr.io/ekaterinashimchyonok/ds-pipeline:latest
+        run: docker push ghcr.io/katsiarynashymchonak-trainee/ds-pipeline:latest
