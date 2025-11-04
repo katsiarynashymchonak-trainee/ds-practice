@@ -22,4 +22,4 @@ jobs:
         run: docker build -t ghcr.io/ekaterinashimchyonok/ds-pipeline:latest .
 
       - name: Push Docker image
-        run: docker push ghcr.io/ekaterinashimchyonokk/ds-pipeline:latest
+        run: docker push ghcr.io/ekaterinashimchyonok/ds-pipeline:latest
