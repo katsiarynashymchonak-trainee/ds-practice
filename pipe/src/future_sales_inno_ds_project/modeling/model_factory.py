@@ -1,10 +1,11 @@
-from keras import Input
 from sklearn.linear_model import Ridge
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
-from keras.models import Sequential
-from keras.layers import LSTM, Dense
-from keras.optimizers import Adam
+from tensorflow.keras import Input
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.optimizers import Adam
+
 
 from ..config import LSTM_INPUT_SHAPE
 

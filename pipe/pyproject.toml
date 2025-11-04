@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "future_sales_inno_ds_project"
-version = "0.0.18"
+version = "0.1.0"
 description = "DS project"
 authors = ["Katsiaryna <katsiaryna.shymchonak@innowise.com>"]
 readme = "README.md"
@@ -36,7 +36,7 @@ matplotlib = ">=3.8.0"
 setuptools = "<81"
 
 # Integrations
-openai = "~2.2.0"
+# openai = "~2.2.0"
 neptune = "~1.14.0"
 PyGithub = "~2.4.0"
 

@@ -2,6 +2,8 @@
 
 import logging
 import time
+from pathlib import Path
+
 import dill
 import numpy as np
 
@@ -14,7 +16,7 @@ from .config import (
     USE_FEATURE_SELECTION,
     USE_OPTUNA,
     USE_PARALLEL_TUNING,
-    MODEL_TYPE, BEST_PARAMS_PATH
+    MODEL_TYPE, BEST_PARAMS_PATH, FEATURE_SET
 )
 from .data_preparation.data_loader import DataLoader
 from .data_preparation.standard_scaler_handler import StandardScalerHandler
@@ -46,6 +48,8 @@ class ModelTrainer:
         if self.neptune_run:
             self.neptune_run["config/USE_FEATURE_SELECTION"] = USE_FEATURE_SELECTION
             self.neptune_run["config/USE_PARALLEL_TUNING"] = USE_PARALLEL_TUNING
+            self.neptune_run["config/FEATURE_SET"] = FEATURE_SET
+
 
         # Create model instance using factory pattern
         self.model_type = model_type
@@ -205,6 +209,9 @@ class ModelTrainer:
         logger.info(f"Saving Predictions to {self.pred_path}")
         sub_df.to_csv(self.pred_path, index=False)
 
+        relative_path = Path(self.pred_path).relative_to(Path.cwd())
+        self.neptune_run["artifacts/predictions"].track_files(str(relative_path))
+
         logger.info(f"First 5 predictions: \n{sub_df.head()}")
         logger.info(f"Prediction completed in {time.time() - start:.2f}s")
 
@@ -213,11 +220,18 @@ class ModelTrainer:
     def save(self, path: str):
         # Save trained model and metadata to disk
         start = time.time()
-        self.neptune_run["artifacts/predictions"].upload(path)
         logger.info(f"Saving trained model to {path}...")
+
+        # Save model locally
         with open(path, 'wb') as file:
             dill.dump({
                 "model": self.best_model,
                 "metadata": self.metadata
             }, file)
-        logger.info(f"Model saved successfully in {time.time() - start:.2f}s")
+
+        # Track Neptune artefact
+        relative_path = Path(path).relative_to(Path.cwd())
+        self.neptune_run["artifacts/model"].track_files(str(relative_path))
+
+        logger.info(f"Model saved and tracked successfully in {time.time() - start:.2f}s")
+

@@ -20,6 +20,10 @@ X_PATH = PROCESSED_DIR / "x.csv"
 X_TEST_PATH = PROCESSED_DIR / "x_test.csv"
 Y_PATH = PROCESSED_DIR / "y.csv"
 
+# DVC paths
+DVC_DIR = BASE_DIR / ".dvc"
+DVC_CONFIG_PATH = DVC_DIR / "config"
+
 # Model paths
 MODELS_DIR = BASE_DIR / "models"
 MODEL_SAVE_PATH = MODELS_DIR / "sales_model.pkl"
@@ -39,6 +43,8 @@ HISTOGRAM_PATH = SHAP_DIR / "error_histogram.png"
 DYNAMIC_VS_ERROR_PATH = SHAP_DIR / "dynamic_vs_error.png"
 BEESWARM_PATH = SHAP_DIR / "shap_beeswarm.png"
 SHAP_LSTM_PATH = SHAP_DIR / "shap_lstm_summary.png"
+
+ERROR_NOTEBOOK_PATH = BASE_DIR / "notebooks" / "Feature analysis.jpynb"
 
 BEST_PARAMS_PATH = BASE_DIR / "data" / "best_params"
 
@@ -63,7 +69,7 @@ MODEL_METADATA = {
 USE_FEATURE_SELECTION = 0
 LOG_TARGET = 0
 # XGBRegressor, LGBMRegressor, RandomForestRegressor, RidgeRegression, LSTM
-MODEL_TYPE = "LGBMRegressor"
+MODEL_TYPE = "XGBRegressor"
 FEATURE_SET = "basic"  # "basic", "extended", "lags_only"
 USE_OPTUNA = 1,
 USE_PARALLEL_TUNING = 0,

@@ -7,12 +7,15 @@ import xgboost
 
 from .config import (
     MODEL_SAVE_PATH, MODEL_METADATA, FORM_PREP_DATA,
-    X_PATH, X_TEST_PATH, Y_PATH, OPTUNA_SPACES, HYPEROPT_SPACES, USE_OPTUNA, LOG_TARGET, MODEL_TYPE,
+    X_PATH, X_TEST_PATH, Y_PATH, OPTUNA_SPACES, HYPEROPT_SPACES,
+    USE_OPTUNA, LOG_TARGET, MODEL_TYPE, LABELS_DIR,
+    ERROR_NOTEBOOK_PATH, DVC_CONFIG_PATH,
 )
 from .data_preparation.data_loader import DataLoader
 from .data_preparation.data_preprocessor import DataPreprocessor
 from .feature_engineering.feature_engineer import FeatureEngineer
 from .model_trainer import ModelTrainer
+from .utills.neptune_utils import safe_track_file
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -34,10 +37,12 @@ def initialize_neptune_run(api_token: str):
     return neptune.init_run(
         project="katsiaryna.shymchonak/Future-sales",
         api_token=api_token,
+        name=MODEL_TYPE
     )
 
 
-def prepare_data(run):
+
+def prepare_data():
     if FORM_PREP_DATA:
         # Load raw input data
         loader = DataLoader()
@@ -97,8 +102,11 @@ def log_to_neptune(run, trainer, rmse):
     run["config/LOG_TARGET"] = LOG_TARGET
     run["config/FORM_PREP_DATA"] = FORM_PREP_DATA
     run["config/USE_OPTUNA"] = USE_OPTUNA
-    run["config/OPTUNA_SPACES"] = list(OPTUNA_SPACES.keys()) if OPTUNA_SPACES else None
-    run["config/HYPEROPT_SPACES"] = list(HYPEROPT_SPACES.keys()) if HYPEROPT_SPACES else None
+    run["config/OPTUNA_SPACES"] = str(list(OPTUNA_SPACES.keys()))
+    if HYPEROPT_SPACES:
+        run["config/HYPEROPT_SPACES"] = str(list(HYPEROPT_SPACES.keys()))
+    else:
+        run["config/HYPEROPT_SPACES"] = "None"
 
     # Log model parameters
     try:
@@ -107,19 +115,12 @@ def log_to_neptune(run, trainer, rmse):
             run["parameters"] = str(config) if config is not None else "N/A"
         else:
             params = getattr(trainer.model, "get_params", lambda: None)()
-            run["parameters"] = params if params is not None else "N/A"
+            run["parameters"] = str(params) if params is not None else "N/A"
     except Exception as e:
         run["parameters"] = f"Failed to extract parameters: {str(e)}"
 
     if hasattr(trainer, "best_params") and trainer.best_params:
-        run["parameters/best"] = trainer.best_params
-
-    # Upload model and DVC artifacts
-    run["artifacts/model"].upload(str(MODEL_SAVE_PATH))
-    if os.path.exists(".dvc/config"):
-        run["dvc/config"].upload(".dvc/config")
-    if os.path.exists("params.yaml"):
-        run["dvc/params"].upload("params.yaml")
+        run["parameters/best"] = str(trainer.best_params)
 
     # Log library versions
     run["env/xgboost_version"] = xgboost.__version__
@@ -127,12 +128,21 @@ def log_to_neptune(run, trainer, rmse):
     run["env/sklearn_version"] = sklearn.__version__
     run["env/pandas_version"] = pd.__version__
 
+    # Track label directory
+    safe_track_file(run, "artifacts/labels", LABELS_DIR)
+
+    # Track error analysis notebook
+    safe_track_file(run, "artifacts/feature_analysis_notebook", ERROR_NOTEBOOK_PATH)
+
+    # Track DVC artifacts
+    safe_track_file(run, "artifacts/dvc config", DVC_CONFIG_PATH)
+
 
 def run_pipeline(NEPTUNE_API_TOKEN: str):
     logger.info("Sales Prediction Pipeline started")
     run = initialize_neptune_run(NEPTUNE_API_TOKEN)
 
-    x, y, x_test = prepare_data(run)
+    x, y, x_test = prepare_data()
     if LOG_TARGET:
         y = DataPreprocessor.log_transform(y)
 
