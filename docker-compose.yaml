@@ -8,8 +8,8 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - PYTHONPATH=/opt/airflow
     volumes:
-      - airflow_db:/opt/airflow
       - .:/opt/airflow
+      - airflow_db:/opt/airflow/data
     command: >
       bash -c "airflow db init &&
                airflow users create --username admin --firstname Екатерина --lastname AI --role Admin --email admin@example.com --password admin"
@@ -26,8 +26,8 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - PYTHONPATH=/opt/airflow
     volumes:
-      - airflow_db:/opt/airflow
       - .:/opt/airflow
+      - airflow_db:/opt/airflow/data
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "curl --fail http://localhost:8080/health || exit 1"]
@@ -48,8 +48,8 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - PYTHONPATH=/opt/airflow
     volumes:
-      - airflow_db:/opt/airflow
       - .:/opt/airflow
+      - airflow_db:/opt/airflow/data
     restart: always
     command: >
       bash -c "airflow scheduler"
