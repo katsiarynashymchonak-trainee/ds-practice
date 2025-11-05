@@ -9,7 +9,7 @@ gemini_api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=gemini_api_key)
 model = genai.GenerativeModel("gemini-2.5-flash")
 
-# GitHub initialisation
+# GitHub initialization
 github_token = os.getenv("MY_GITHUB_TOKEN")
 g = Github(auth=Token(github_token))
 
@@ -56,8 +56,36 @@ for i, chunk in enumerate(chunks):
     except Exception as e:
         reviews.append(f"### Review Part {i+1}:\nError during analysis: {str(e)}")
 
+# Combine and print full review
 full_review = "\n\n".join(reviews)
 print("===== AI Review Output =====")
 print(full_review)
 print("============================")
-pr.create_issue_comment(f"**AI Review Summary**\n\n{full_review}")
+
+# GitHub comment size limit
+MAX_COMMENT_LENGTH = 65000
+
+# Split and post comments
+header = "**AI Review Summary**\n\n"
+chunks_to_post = []
+
+# Split full_review into safe chunks
+while full_review:
+    if len(full_review) <= MAX_COMMENT_LENGTH - len(header):
+        chunks_to_post.append(header + full_review)
+        break
+    else:
+        split_index = full_review.rfind("\n", 0, MAX_COMMENT_LENGTH - len(header))
+        if split_index == -1:
+            split_index = MAX_COMMENT_LENGTH - len(header)
+        chunk = full_review[:split_index]
+        chunks_to_post.append(header + chunk)
+        full_review = full_review[split_index:].lstrip()
+
+# Post each chunk as a separate comment
+for i, comment in enumerate(chunks_to_post):
+    try:
+        pr.create_issue_comment(comment)
+        print(f"Posted comment chunk {i+1}")
+    except Exception as e:
+        print(f"Failed to post comment chunk {i+1}: {str(e)}")
