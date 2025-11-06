@@ -49,7 +49,14 @@ def split_diff(diff_text, max_lines=100):
 reviews = []
 chunks = split_diff(diff_content, max_lines=100)
 for i, chunk in enumerate(chunks):
-    prompt = f"Part {i+1} of {len(chunks)}. Analyze the following code diff and suggest improvements:\n{chunk}"
+    prompt = (
+        f"Part {i + 1} of {len(chunks)}. You are a senior software engineer reviewing a pull request. "
+        f"Analyze the following code diff and suggest improvements focused on architecture, modularity, "
+        f"and maintainability. "
+        f"Highlight any design patterns, abstractions, or structural issues worth refactoring. "
+        f"Code diff:\n{chunk}"
+    )
+
     try:
         response = model.generate_content(prompt)
         reviews.append(f"### Review Part {i+1}:\n{response.text}")

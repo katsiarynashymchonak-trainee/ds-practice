@@ -215,5 +215,5 @@ notebooks/.neptune/
 notebooks/pypi_test/notebook/.ipynb_checkpoints/
 pipe/src/.neptune/
 shap_graphs/
-
+.neptune/
 /data
