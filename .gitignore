@@ -12,7 +12,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+pipe/dist/
 downloads/
 eggs/
 .eggs/
@@ -137,7 +137,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+pipe/src/future_sales_inno_ds_project/.env
 .envrc
 .venv
 env/
@@ -194,7 +194,7 @@ cython_debug/
 .ruff_cache/
 
 # PyPI configuration file
-.pypirc
+pipe/src/future_sales_inno_ds_project/.pypirc
 
 # Cursor
 #  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
@@ -207,7 +207,13 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-pipe/data
 
 .tmp.driveupload/
-/pipe/.idea/
+.idea/
+models/
+notebooks/.neptune/
+notebooks/pypi_test/notebook/.ipynb_checkpoints/
+pipe/src/.neptune/
+shap_graphs/
+.neptune/
+/data

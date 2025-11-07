@@ -1,2 +1,26 @@
-openai
-PyGithub
+# ML
+pandas==2.1.1
+scikit-learn==1.3.2
+optuna==4.5.0
+hyperopt==0.2.7
+lightgbm==4.6.0
+xgboost==2.0.3
+shap==0.48.0
+dill==0.3.8
+
+# TensorFlow and Keras
+typing-extensions>=4.11,<5
+tensorflow==2.14.0
+# keras==2.14.0
+protobuf==4.23.4
+
+# Utils
+python-dotenv==0.21.1
+requests==2.32.4
+charset-normalizer>=3.3.0
+matplotlib>=3.8.0
+
+# Integrations
+neptune==1.14.0
+PyGithub==2.4.0
+dvc[gs,gdrive]==3.50.1

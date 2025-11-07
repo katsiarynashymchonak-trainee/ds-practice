@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.sqlite3
+pipe/src/future_sales_inno_ds_project/.env
+.dvc/
+.airflow/
+.ipynb_checkpoints/
+pipe/src/model_api.py

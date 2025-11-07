@@ -1,0 +1,27 @@
+name: Publish multiple packages to PyPI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Publish future sales package
+        working-directory: pipe/
+        run: poetry publish --build
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{secrets.PYPI_API_TOKEN }}
